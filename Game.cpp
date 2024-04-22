@@ -55,7 +55,7 @@ void Game::run()
 
         if (!m_paused)
         {
-            //sEnemySpawner();
+            sEnemySpawner();
             sMovement();
             sCollision();
             m_currentFrame++;
@@ -126,7 +126,7 @@ void Game::spawnEnemy()
     float randomFB = 0 + (rand() % 255);
     auto normalize = center.normalize(enemyPos);
 
-    entity->cTransform = std::make_shared<CTransform>(Vec2(ex, ey), Vec2(randomS * normalize.x, randomS * normalize.y), angle);
+    entity->cTransform = std::make_shared<CTransform>(Vec2(GetScreenWidth() / 2, GetScreenHeight() / 2), Vec2(0.0f, 0.0f), angle);
     entity->cCollision = std::make_shared<CCollision>(m_enemyConfig.CR);
     entity->cShape = std::make_shared<CShape>(m_enemyConfig.SW, m_enemyConfig.SH, WHITE);
 
@@ -238,8 +238,10 @@ void Game::sCollision()
 void Game::sEnemySpawner()
 {
     // Spawn an enemy by subtracting the last time an enemy was spawned and the current frame to equal 3 seconds
-    std::cout << m_lastEnemySpawnTime << std::endl;
-    if (m_currentFrame - m_lastEnemySpawnTime == m_enemyConfig.SP) spawnEnemy();
+    if (m_entities.getEntities("enemy").size() < 1)
+    {
+        spawnEnemy();
+    }
 }
 
 
