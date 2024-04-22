@@ -71,12 +71,12 @@ void Game::run()
         }
     }
 
+    m_running = false;
     CloseWindow();
 }
 
 void Game::setPaused()
 {
-    //TODO
     m_paused = !m_paused;
 }
 
@@ -91,9 +91,9 @@ void Game::spawnPlayer()
 
     //Give this entity a transform so it spawns at middle of screen with velocity (1,1) and angle 0
     float mx = GetScreenWidth() / 2.0f;
-    float my = GetScreenHeight() / 2.0f;
+    float my = GetScreenHeight() - m_playerConfig.SH;
 
-    entity->cTransform = std::make_shared<CTransform>(Vec2(mx, my), Vec2(1.0f, 1.0f), 0.0f);
+    entity->cTransform = std::make_shared<CTransform>(Vec2(mx, my), Vec2(3.0f, 3.0f), 0.0f);
 
     //The entity's shape will have radius 32, 8 sides, dark grey fill, and red outline of thickenss 4
     entity->cShape = std::make_shared<CShape>(m_playerConfig.SW, m_playerConfig.SH, WHITE);
@@ -169,27 +169,6 @@ void Game::sMovement()
     // player movement
     m_player->cTransform->velocity = { 0,0 };
 
-    if (m_player->cInput->up)
-    {
-        m_player->cTransform->velocity.y += -m_playerConfig.S;
-
-        if (m_player->cTransform->pos.y - m_player->cCollision->radius < 0)
-        {
-            m_player->cTransform->velocity.y = 0;
-        }
-    }
-
-    if (m_player->cInput->down)
-    {
-        m_player->cTransform->velocity.y += m_playerConfig.S;
-
-        if (m_player->cTransform->pos.y + m_player->cCollision->radius > GetScreenHeight())
-        {
-            m_player->cTransform->velocity.y = 0;
-
-        }
-    }
-
     if (m_player->cInput->right)
     {
         m_player->cTransform->velocity.x += m_playerConfig.S;
@@ -205,7 +184,7 @@ void Game::sMovement()
     {
         m_player->cTransform->velocity.x += -m_playerConfig.S;
 
-        if (m_player->cTransform->pos.x - m_player->cCollision->radius < 0)
+        if (m_player->cTransform->pos.x < 0)
         {
             m_player->cTransform->velocity.x = 0;
 
@@ -321,4 +300,37 @@ void Game::sRender()
 void Game::sUserInput()
 {
 
+    if (IsKeyPressed(KEY_P)) 
+    {
+        setPaused();
+    }
+
+    if (!m_paused)
+    {
+        // check if keys are pressed
+        if (IsKeyDown(KEY_A)) 
+        {
+            m_player->cInput->left = true;
+           
+        }
+
+        if (IsKeyDown(KEY_D))
+        {
+            m_player->cInput->right = true;
+
+        }
+
+        // check if keys are released
+        if (IsKeyReleased(KEY_A))
+        {
+            m_player->cInput->left = false;
+
+        }
+
+        if (IsKeyReleased(KEY_D))
+        {
+            m_player->cInput->right = false;
+
+        }
+    }
 }
