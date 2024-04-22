@@ -7,7 +7,7 @@
 struct WindowConfig { int W, H, FR, FS; };
 struct PlayerConfig { int SW, SH, CR; float S; };
 struct EnemyConfig { int SW, SH, CR, SP; float SMIN, SMAX; };
-//struct BulletConfig { int SR, CR, FR, FG, FB, OR, OG, OB, OT, V, L; float S; };
+struct BulletConfig { int SW, SH, CR; float S; };
 
 class Game
 {
@@ -15,7 +15,7 @@ class Game
     WindowConfig m_windowConfig;
     PlayerConfig m_playerConfig;
     EnemyConfig m_enemyConfig;
-    //BulletConfig m_bulletConfig;
+    BulletConfig m_bulletConfig;
     int m_score = 0;
     int m_currentFrame = 0;
     int m_lastEnemySpawnTime = 0;
@@ -39,7 +39,7 @@ class Game
     void spawnPlayer();
     void spawnEnemy();
     void spawnSpecialEnemies();
-    void spawnBullet(std::shared_ptr<Entity> entity, const Vec2& mousePos);
+    void spawnBullet(std::shared_ptr<Entity> entity);
 
 public:
 

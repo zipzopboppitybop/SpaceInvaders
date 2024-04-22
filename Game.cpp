@@ -28,10 +28,10 @@ void Game::init(const std::string& path)
             fin >> m_enemyConfig.SW >> m_enemyConfig.SH >> m_enemyConfig.CR >> m_enemyConfig.SP >> m_enemyConfig.SMIN >> m_enemyConfig.SMAX;
         }
 
-        //if (temp == "Bullet")
-        //{
-            //fin >> m_bulletConfig.SR >> m_bulletConfig.CR >> m_bulletConfig.S >> m_bulletConfig.FR >> m_bulletConfig.FG >> m_bulletConfig.FB >> m_bulletConfig.OR >> m_bulletConfig.OG >> m_bulletConfig.OB >> m_bulletConfig.OT >> m_bulletConfig.V >> m_bulletConfig.L;
-        //}
+        if (temp == "Bullet")
+        {
+            fin >> m_bulletConfig.SW >> m_bulletConfig.SH >>m_bulletConfig.CR >> m_bulletConfig.S;
+        }
 
     }
 
@@ -147,19 +147,13 @@ void Game::spawnSpecialEnemies()
 
 
 // spawns a bullet from a given entity to a target location
-void Game::spawnBullet(std::shared_ptr<Entity> entity, const Vec2& target)
+void Game::spawnBullet(std::shared_ptr<Entity> entity)
 {
-    // TODO: implement the spawning of a bullet which travels toward target
-    // -bullet speed is given as a scalar speed
-    // - you must set the velocity using formula in notes
-
-    //auto bullet = m_entities.addEntity("bullet");
-    //auto entity_stuff = Vec2(entity->cTransform->pos.x, entity->cTransform->pos.y);
-    //float angle = target.angle(entity_stuff);
-    //auto normalize = target.normalize(entity_stuff);
-    //bullet->cTransform = std::make_shared<CTransform>(Vec2(entity->cTransform->pos.x, entity->cTransform->pos.y), Vec2(m_bulletConfig.S * normalize.x, m_bulletConfig.S * normalize.y), angle);
-   // bullet->cCollision = std::make_shared<CCollision>(m_bulletConfig.CR);
-    //bullet->cShape = std::make_shared<CShape>(m_bulletConfig.SR, m_bulletConfig.V, sf::Color(m_bulletConfig.FR, m_bulletConfig.FG, m_bulletConfig.FB), sf::Color(m_bulletConfig.OR, m_bulletConfig.OG, m_bulletConfig.OB), m_bulletConfig.OT);
+    auto bullet = m_entities.addEntity("bullet");
+    auto entity_stuff = Vec2(entity->cTransform->pos.x, entity->cTransform->pos.y);
+    bullet->cTransform = std::make_shared<CTransform>(Vec2(entity->cTransform->pos.x, entity->cTransform->pos.y), Vec2(m_bulletConfig.S, m_bulletConfig.S), 0.0f);
+    //bullet->cCollision = std::make_shared<CCollision>(m_bulletConfig.CR);
+    bullet->cShape = std::make_shared<CShape>(m_enemyConfig.SW, m_enemyConfig.SH, WHITE);
 }
 
 void Game::sMovement()
@@ -192,7 +186,7 @@ void Game::sMovement()
     }
 
     // move all entities in m_entities vector
-    for (auto e : m_entities.getEntities())
+    for (auto e : m_entities.getEntities("player"))
     {
         e->cTransform->pos.x += e->cTransform->velocity.x;
         e->cTransform->pos.y += e->cTransform->velocity.y;
@@ -238,32 +232,7 @@ void Game::sCollision()
     //TODO: implement all proper collisions between entities
     // use collision radius not shape radius
 
-    for (auto b : m_entities.getEntities("bullet"))
-    {
-        for (auto e : m_entities.getEntities("enemy"))
-        {
-            auto enemy_stuff = Vec2(e->cTransform->pos.x, e->cTransform->pos.y);
-            auto bullet_stuff = Vec2(b->cTransform->pos.x, b->cTransform->pos.y);
-            float dist = bullet_stuff.dist(enemy_stuff);
-            if (dist < b->cCollision->radius + e->cCollision->radius)
-            {
-                b->destroy();
-                e->destroy();
-            }
-        }
-    }
 
-    for (auto e : m_entities.getEntities("enemy"))
-    {
-        auto enemy_stuff = Vec2(e->cTransform->pos.x, e->cTransform->pos.y);
-        auto player_stuff = Vec2(m_player->cTransform->pos.x, m_player->cTransform->pos.y);
-        float dist = player_stuff.dist(enemy_stuff);
-        if (dist < e->cCollision->radius + m_player->cCollision->radius)
-        {
-            e->destroy();
-            m_player->destroy();
-        }
-    }
 }
 
 void Game::sEnemySpawner()
@@ -320,6 +289,14 @@ void Game::sUserInput()
 
         }
 
+        if (IsKeyPressed(KEY_SPACE))
+        {
+            m_player->cInput->shoot = true;
+            spawnBullet(m_player);
+            std::cout << m_player->cInput->shoot << std::endl;
+        }
+
+
         // check if keys are released
         if (IsKeyReleased(KEY_A))
         {
@@ -331,6 +308,12 @@ void Game::sUserInput()
         {
             m_player->cInput->right = false;
 
+        }
+
+        if (IsKeyReleased(KEY_SPACE))
+        {
+            m_player->cInput->shoot = false;
+            std::cout << m_player->cInput->shoot << std::endl;
         }
     }
 }
