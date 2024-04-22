@@ -41,7 +41,7 @@ void Game::init(const std::string& path)
     }
 
     // set up default window parameters
-    InitWindow(m_windowConfig.W, m_windowConfig.H, "My first RAYLIB program!");
+    InitWindow(m_windowConfig.W, m_windowConfig.H, "Invaders");
     SetTargetFPS(m_windowConfig.FR);
 
     spawnPlayer();
@@ -151,7 +151,7 @@ void Game::spawnBullet(std::shared_ptr<Entity> entity)
 {
     auto bullet = m_entities.addEntity("bullet");
     auto entity_stuff = Vec2(entity->cTransform->pos.x, entity->cTransform->pos.y);
-    bullet->cTransform = std::make_shared<CTransform>(Vec2(entity->cTransform->pos.x, entity->cTransform->pos.y), Vec2(m_bulletConfig.S, m_bulletConfig.S), 0.0f);
+    bullet->cTransform = std::make_shared<CTransform>(Vec2(entity->cTransform->pos.x, entity->cTransform->pos.y - entity->cShape->rectangle.height), Vec2(0, m_bulletConfig.S), 0.0f);
     //bullet->cCollision = std::make_shared<CCollision>(m_bulletConfig.CR);
     bullet->cShape = std::make_shared<CShape>(m_enemyConfig.SW, m_enemyConfig.SH, WHITE);
 }
@@ -186,7 +186,7 @@ void Game::sMovement()
     }
 
     // move all entities in m_entities vector
-    for (auto e : m_entities.getEntities("player"))
+    for (auto e : m_entities.getEntities())
     {
         e->cTransform->pos.x += e->cTransform->velocity.x;
         e->cTransform->pos.y += e->cTransform->velocity.y;
@@ -247,9 +247,8 @@ void Game::sEnemySpawner()
 void Game::sRender()
 {
     // Clear the window every frame so that the same entity doesn't get drawn over and over
-    Color darkGreen = Color{ 20, 160, 133, 255 };
     BeginDrawing();
-    ClearBackground(darkGreen);
+    ClearBackground(BLACK);
 
     for (auto e : m_entities.getEntities())
     {
@@ -276,7 +275,8 @@ void Game::sUserInput()
 
     if (!m_paused)
     {
-        // check if keys are pressed
+        // Keys being pressed
+        // Movement keys
         if (IsKeyDown(KEY_A)) 
         {
             m_player->cInput->left = true;
@@ -289,15 +289,16 @@ void Game::sUserInput()
 
         }
 
+        // Attack keys
         if (IsKeyPressed(KEY_SPACE))
         {
             m_player->cInput->shoot = true;
             spawnBullet(m_player);
-            std::cout << m_player->cInput->shoot << std::endl;
         }
 
 
-        // check if keys are released
+        // Keys being released
+        // Movement keys
         if (IsKeyReleased(KEY_A))
         {
             m_player->cInput->left = false;
@@ -309,11 +310,10 @@ void Game::sUserInput()
             m_player->cInput->right = false;
 
         }
-
+        // Attack keys
         if (IsKeyReleased(KEY_SPACE))
         {
             m_player->cInput->shoot = false;
-            std::cout << m_player->cInput->shoot << std::endl;
         }
     }
 }
