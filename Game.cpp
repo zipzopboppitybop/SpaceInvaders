@@ -108,25 +108,14 @@ void Game::spawnPlayer()
 }
 
 // spawn an enemy at random position
-void Game::spawnEnemy()
+void Game::spawnEnemy(const Vec2& pos)
 {
     //TODO: make sure the enemy is spawned properly with the m_enemyConfig variables
     // the enemy must be spawn completely within the bounds of the window
 
     auto entity = m_entities.addEntity("enemy");
 
-    float ex = rand() % GetScreenWidth();
-    float ey = rand() % GetScreenHeight();
-    auto center = Vec2(GetScreenWidth(), GetScreenHeight());
-    auto enemyPos = Vec2(ex, ey);
-    float angle = -1 + (rand() % (1 + 1 + 1));
-    float randomS = m_enemyConfig.SMIN + (rand() % 1 + m_enemyConfig.SMAX - m_enemyConfig.SMIN);
-    float randomFR = 0 + (rand() % 255);
-    float randomFG = 0 + (rand() % 255);
-    float randomFB = 0 + (rand() % 255);
-    auto normalize = center.normalize(enemyPos);
-
-    entity->cTransform = std::make_shared<CTransform>(Vec2(GetScreenWidth() / 2, GetScreenHeight() / 2), Vec2(0.0f, 0.0f), angle);
+    entity->cTransform = std::make_shared<CTransform>(Vec2(pos.x, pos.y), Vec2(0.0f, 0.0f), 0.0f);
     entity->cCollision = std::make_shared<CCollision>(m_enemyConfig.CR);
     entity->cShape = std::make_shared<CShape>(m_enemyConfig.SW, m_enemyConfig.SH, WHITE);
 
@@ -153,7 +142,7 @@ void Game::spawnBullet(std::shared_ptr<Entity> entity)
     auto entity_stuff = Vec2(entity->cTransform->pos.x, entity->cTransform->pos.y);
     bullet->cTransform = std::make_shared<CTransform>(Vec2(entity->cTransform->pos.x, entity->cTransform->pos.y - entity->cShape->rectangle.height), Vec2(0, m_bulletConfig.S), 0.0f);
     //bullet->cCollision = std::make_shared<CCollision>(m_bulletConfig.CR);
-    bullet->cShape = std::make_shared<CShape>(m_enemyConfig.SW, m_enemyConfig.SH, WHITE);
+    bullet->cShape = std::make_shared<CShape>(m_bulletConfig.SW, m_bulletConfig.SH, WHITE);
 }
 
 void Game::sMovement()
@@ -237,11 +226,15 @@ void Game::sCollision()
 
 void Game::sEnemySpawner()
 {
-    // Spawn an enemy by subtracting the last time an enemy was spawned and the current frame to equal 3 seconds
-    if (m_entities.getEntities("enemy").size() < 1)
+    // Spawn enemies in a grid
+    int initial_x = GetScreenWidth() / 6;
+    int initial_y = GetScreenHeight() / 5;
+
+    for (int i = 0; i < 11; i++)
     {
-        spawnEnemy();
+        spawnEnemy(Vec2(initial_x + m_enemyConfig.SW * (i % 11) + 20.0f * (i % 11), initial_y));
     }
+    
 }
 
 

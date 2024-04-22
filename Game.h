@@ -37,7 +37,7 @@ class Game
     void sCollision();      // System: Collision
 
     void spawnPlayer();
-    void spawnEnemy();
+    void spawnEnemy(const Vec2& pos);
     void spawnSpecialEnemies();
     void spawnBullet(std::shared_ptr<Entity> entity);
 
