@@ -1,0 +1,5 @@
+Window 1280 720 60 0
+Font fonts/tech.ttf 24 255 255 255
+Player 32 32 64 1
+Enemy 32 32 64 10 3 3
+Bullet 10 10 20 255 255 255 255 255 255 2 20 90
