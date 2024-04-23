@@ -136,8 +136,8 @@ void Game::spawnSpecialEnemies()
 void Game::spawnBullet(std::shared_ptr<Entity> entity)
 {
     auto bullet = m_entities.addEntity("bullet");
-    auto entity_stuff = Vec2(entity->cTransform->pos.x, entity->cTransform->pos.y);
-    bullet->cTransform = std::make_shared<CTransform>(Vec2(entity->cTransform->pos.x, entity->cTransform->pos.y - entity->cShape->rectangle.height), Vec2(0, m_bulletConfig.S), 0.0f);
+    auto entity_pos = Vec2(entity->cTransform->pos.x, entity->cTransform->pos.y);
+    bullet->cTransform = std::make_shared<CTransform>(Vec2(entity_pos.x, entity_pos.y - entity->cShape->rectangle.height), Vec2(0, m_bulletConfig.S), 0.0f);
     bullet->cCollision = std::make_shared<CCollision>(m_bulletConfig.CR);
     bullet->cShape = std::make_shared<CShape>(m_bulletConfig.SW, m_bulletConfig.SH, WHITE);
 }
