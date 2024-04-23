@@ -96,7 +96,7 @@ void Game::spawnPlayer()
     entity->cTransform = std::make_shared<CTransform>(Vec2(mx, my), Vec2(3.0f, 3.0f), 0.0f);
 
     //The entity's shape will have radius 32, 8 sides, dark grey fill, and red outline of thickenss 4
-    entity->cShape = std::make_shared<CShape>(m_playerConfig.SW, m_playerConfig.SH, WHITE);
+    entity->cShape = std::make_shared<CShape>(entity->cTransform->pos.x, entity->cTransform->pos.y, m_playerConfig.SW, m_playerConfig.SH, WHITE);
 
     // input component to control player
     entity->cInput = std::make_shared<CInput>();
@@ -114,7 +114,7 @@ void Game::spawnEnemy(const Vec2& pos)
 
     enemy->cTransform = std::make_shared<CTransform>(Vec2(pos.x, pos.y), Vec2(10.0f, 0.0f), 0.0f);
     enemy->cCollision = std::make_shared<CCollision>(m_enemyConfig.CR);
-    enemy->cShape = std::make_shared<CShape>(m_enemyConfig.SW, m_enemyConfig.SH, WHITE);
+    enemy->cShape = std::make_shared<CShape>(enemy->cTransform->pos.x, enemy->cTransform->pos.y, m_enemyConfig.SW, m_enemyConfig.SH, WHITE);
 
     //record when the most enemy was spawned
     m_lastEnemySpawnTime = m_currentFrame;
@@ -139,7 +139,7 @@ void Game::spawnBullet(std::shared_ptr<Entity> entity)
     auto entity_pos = Vec2(entity->cTransform->pos.x, entity->cTransform->pos.y);
     bullet->cTransform = std::make_shared<CTransform>(Vec2(entity_pos.x, entity_pos.y - entity->cShape->rectangle.height), Vec2(0, m_bulletConfig.S), 0.0f);
     bullet->cCollision = std::make_shared<CCollision>(m_bulletConfig.CR);
-    bullet->cShape = std::make_shared<CShape>(m_bulletConfig.SW, m_bulletConfig.SH, WHITE);
+    bullet->cShape = std::make_shared<CShape>(entity->cTransform->pos.x, entity->cTransform->pos.y, m_bulletConfig.SW, m_bulletConfig.SH, WHITE);
 }
 
 // System for handling all movement
@@ -194,18 +194,22 @@ void Game::sLifeSpan()
 
 void Game::sCollision() 
 {
+    Rectangle boxCollision = { 0 };
+
+
     for (auto b : m_entities.getEntities("bullet"))
     {
         for (auto e : m_entities.getEntities("enemy"))
         {
-            auto enemy_stuff = Vec2(e->cTransform->pos.x, e->cTransform->pos.y);
-            auto bullet_stuff = Vec2(b->cTransform->pos.x, b->cTransform->pos.y);
-            float dist = bullet_stuff.dist(enemy_stuff);
-            if (dist < b->cCollision->radius + e->cCollision->radius)
+            Rectangle rec1 = { b->cTransform->pos.x, b->cTransform->pos.y, b->cShape->width, b->cShape->height };
+            Rectangle rec2 = { e->cTransform->pos.x, e->cTransform->pos.y, e->cShape->width, e->cShape->height };
+
+            if (CheckCollisionRecs(rec1, rec2))
             {
                 b->destroy();
                 e->destroy();
             }
+
         }
     }
 }
@@ -243,8 +247,8 @@ void Game::sRender()
         //e->cTransform->angle += 1.0f;
         //e->cShape->circle.setRotation(e->cTransform->angle);
 
-        // draw entities sf::CircleShape
-        e->cShape->rectangle.Draw(Vec2(e->cTransform->pos.x, e->cTransform->pos.y));
+        // draw rectangle entities
+        DrawRectangle(e->cTransform->pos.x, e->cTransform->pos.y, e->cShape->width, e->cShape->height, e->cShape->color);
     }
 
     EndDrawing();

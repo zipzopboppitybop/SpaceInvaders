@@ -27,15 +27,14 @@ class Game
     // Main Game Systems
     void init(const std::string& config); // initialize game with config file path
     void setPaused();           // pause the game
+    void sRender();         // System: Render / Drawing
 
     // Player and Enemy Systems
     void sMovement();       // System: Entity position / movement update
     void sUserInput();      // System: User Input
     void sLifeSpan();       // System: LifeSpan
-    void sRender();         // System: Render / Drawing
     void sEnemySpawner();   // System: Spawns Enemies
     void sCollision();      // System: Collision
-
     void spawnPlayer();
     void spawnEnemy(const Vec2& pos);
     void spawnSpecialEnemies();

@@ -2,7 +2,6 @@
 
 #include "Vec2.h"
 #include "raylib.h"
-#include "Shape.h"
 
 class CTransform
 {
@@ -18,10 +17,19 @@ public:
 class CShape
 {
 public:
-    Shape rectangle = Shape();
+    Rectangle rectangle = { 0 };
 
-    CShape(int width, int height, Color color)
-        : rectangle(width, height, color) {}
+    float x, y, width, height;
+    Color color = WHITE;
+
+    CShape(float posX, float posY, float w, float h, Color c)
+        : x(posX), y(posY), width(w), height(h), color(c)
+    {
+        rectangle.x = x;
+        rectangle.y = y;
+        rectangle.width = width;
+        rectangle.height = height;
+    }
 };
 
 class CCollision
