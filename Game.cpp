@@ -230,10 +230,14 @@ void Game::sEnemySpawner()
     int initial_x = GetScreenWidth() / 6;
     int initial_y = GetScreenHeight() / 5;
 
-    for (int i = 0; i < 11; i++)
+    for (int i = 0; i < 5; i++)
     {
-        spawnEnemy(Vec2(initial_x + m_enemyConfig.SW * (i % 11) + 20.0f * (i % 11), initial_y));
+        for (int j = 0; j < 11; j++)
+        {
+            spawnEnemy(Vec2(initial_x + m_enemyConfig.SW * (j % 11) + 20.0f * (j % 11), initial_y + m_enemyConfig.SW * (i % 5) + 20.0f * (i % 5)));
+        }
     }
+
     
 }
 
@@ -244,6 +248,7 @@ void Game::sRender()
     // Clear the window every frame so that the same entity doesn't get drawn over and over
     BeginDrawing();
     ClearBackground(BLACK);
+    std::cout << GetFPS() << std::endl;
 
     for (auto e : m_entities.getEntities())
     {
