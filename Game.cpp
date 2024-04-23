@@ -194,9 +194,6 @@ void Game::sLifeSpan()
 
 void Game::sCollision() 
 {
-    Rectangle boxCollision = { 0 };
-
-
     for (auto b : m_entities.getEntities("bullet"))
     {
         for (auto e : m_entities.getEntities("enemy"))
@@ -256,7 +253,7 @@ void Game::sRender()
 
 void Game::sUserInput()
 {
-
+    // Pause Game
     if (IsKeyPressed(KEY_P)) 
     {
         setPaused();

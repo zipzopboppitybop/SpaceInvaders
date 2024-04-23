@@ -25,7 +25,7 @@ class Game
     std::shared_ptr<Entity> m_player;
 
     // Main Game Systems
-    void init(const std::string& config); // initialize game with config file path
+    void init(const std::string& config); // Initialize Game window with config file 
     void setPaused();           // pause the game
     void sRender();         // System: Render / Drawing
 
@@ -35,8 +35,8 @@ class Game
     void sLifeSpan();       // System: LifeSpan
     void sEnemySpawner();   // System: Spawns Enemies
     void sCollision();      // System: Collision
-    void spawnPlayer();
-    void spawnEnemy(const Vec2& pos);
+    void spawnPlayer();     
+    void spawnEnemy(const Vec2& pos); 
     void spawnSpecialEnemies();
     void spawnBullet(std::shared_ptr<Entity> entity);
 
