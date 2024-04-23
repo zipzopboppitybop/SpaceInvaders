@@ -107,17 +107,14 @@ void Game::spawnPlayer()
     m_player = entity;
 }
 
-// spawn an enemy at random position
+// create an enemy at position
 void Game::spawnEnemy(const Vec2& pos)
 {
-    //TODO: make sure the enemy is spawned properly with the m_enemyConfig variables
-    // the enemy must be spawn completely within the bounds of the window
+    auto enemy = m_entities.addEntity("enemy");
 
-    auto entity = m_entities.addEntity("enemy");
-
-    entity->cTransform = std::make_shared<CTransform>(Vec2(pos.x, pos.y), Vec2(0.0f, 0.0f), 0.0f);
-    entity->cCollision = std::make_shared<CCollision>(m_enemyConfig.CR);
-    entity->cShape = std::make_shared<CShape>(m_enemyConfig.SW, m_enemyConfig.SH, WHITE);
+    enemy->cTransform = std::make_shared<CTransform>(Vec2(pos.x, pos.y), Vec2(10.0f, 0.0f), 0.0f);
+    enemy->cCollision = std::make_shared<CCollision>(m_enemyConfig.CR);
+    enemy->cShape = std::make_shared<CShape>(m_enemyConfig.SW, m_enemyConfig.SH, WHITE);
 
     //record when the most enemy was spawned
     m_lastEnemySpawnTime = m_currentFrame;
@@ -145,63 +142,42 @@ void Game::spawnBullet(std::shared_ptr<Entity> entity)
     bullet->cShape = std::make_shared<CShape>(m_bulletConfig.SW, m_bulletConfig.SH, WHITE);
 }
 
+// System for handling all movement
 void Game::sMovement()
 {
-    //TODO: implement all entity movement in this function
-
-    // player movement
+    // Make player velocity 0 so they don't move if no button is pressed
     m_player->cTransform->velocity = { 0,0 };
-
+    
+    // Player movement
     if (m_player->cInput->right)
     {
         m_player->cTransform->velocity.x += m_playerConfig.S;
-
-        if (m_player->cTransform->pos.x + m_player->cCollision->radius > GetScreenWidth())
-        {
-            m_player->cTransform->velocity.x = 0;
-
-        }
+        m_player->cTransform->pos.x += m_player->cTransform->velocity.x;
     }
 
     if (m_player->cInput->left)
     {
         m_player->cTransform->velocity.x += -m_playerConfig.S;
+        m_player->cTransform->pos.x += m_player->cTransform->velocity.x;
+    }
 
-        if (m_player->cTransform->pos.x < 0)
+    // Enemy movement
+    // Make enemies move every second
+    if (m_currentFrame - m_lastEnemySpawnTime == 60)
+    {
+        m_lastEnemySpawnTime = m_currentFrame;
+
+        for (auto e : m_entities.getEntities("enemy"))
         {
-            m_player->cTransform->velocity.x = 0;
-
+            e->cTransform->pos.x += e->cTransform->velocity.x;
+            e->cTransform->pos.y += e->cTransform->velocity.y;
         }
     }
 
-    // move all entities in m_entities vector
-    for (auto e : m_entities.getEntities())
-    {
-        e->cTransform->pos.x += e->cTransform->velocity.x;
+    // Bullet Movement
+    // Make bullets move every frame
+    for (auto e : m_entities.getEntities("bullet")) {
         e->cTransform->pos.y += e->cTransform->velocity.y;
-    }
-
-    for (auto e : m_entities.getEntities("enemy"))
-    {
-        if (e->cTransform->pos.x - e->cCollision->radius < 0)
-        {
-            e->cTransform->velocity.x *= -1;
-        }
-
-        if (e->cTransform->pos.x + e->cCollision->radius > GetScreenWidth())
-        {
-            e->cTransform->velocity.x *= -1;
-        }
-
-        if (e->cTransform->pos.y - e->cCollision->radius < 0)
-        {
-            e->cTransform->velocity.y *= -1;
-        }
-
-        if (e->cTransform->pos.y + e->cCollision->radius > GetScreenHeight())
-        {
-            e->cTransform->velocity.y *= -1;
-        }
     }
 
 }
@@ -230,15 +206,15 @@ void Game::sEnemySpawner()
     int initial_x = GetScreenWidth() / 6;
     int initial_y = GetScreenHeight() / 5;
 
-    for (int i = 0; i < 5; i++)
-    {
-        for (int j = 0; j < 11; j++)
+    if (m_entities.getEntities("enemy").size() < 1) {
+        for (int i = 0; i < 5; i++)
         {
-            spawnEnemy(Vec2(initial_x + m_enemyConfig.SW * (j % 11) + 20.0f * (j % 11), initial_y + m_enemyConfig.SW * (i % 5) + 20.0f * (i % 5)));
+            for (int j = 0; j < 11; j++)
+            {
+                spawnEnemy(Vec2(initial_x + m_enemyConfig.SW * (j % 11) + 20.0f * (j % 11), initial_y + m_enemyConfig.SW * (i % 5) + 20.0f * (i % 5)));
+            }
         }
     }
-
-    
 }
 
 
@@ -248,7 +224,6 @@ void Game::sRender()
     // Clear the window every frame so that the same entity doesn't get drawn over and over
     BeginDrawing();
     ClearBackground(BLACK);
-    std::cout << GetFPS() << std::endl;
 
     for (auto e : m_entities.getEntities())
     {
@@ -287,6 +262,13 @@ void Game::sUserInput()
         {
             m_player->cInput->right = true;
 
+        }
+
+        // If both keys are down make player stop moving
+        if (IsKeyDown(KEY_A) && IsKeyDown(KEY_D))
+        {
+            m_player->cInput->left = false;
+            m_player->cInput->right = false;
         }
 
         // Attack keys
