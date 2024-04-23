@@ -138,7 +138,7 @@ void Game::spawnBullet(std::shared_ptr<Entity> entity)
     auto bullet = m_entities.addEntity("bullet");
     auto entity_stuff = Vec2(entity->cTransform->pos.x, entity->cTransform->pos.y);
     bullet->cTransform = std::make_shared<CTransform>(Vec2(entity->cTransform->pos.x, entity->cTransform->pos.y - entity->cShape->rectangle.height), Vec2(0, m_bulletConfig.S), 0.0f);
-    //bullet->cCollision = std::make_shared<CCollision>(m_bulletConfig.CR);
+    bullet->cCollision = std::make_shared<CCollision>(m_bulletConfig.CR);
     bullet->cShape = std::make_shared<CShape>(m_bulletConfig.SW, m_bulletConfig.SH, WHITE);
 }
 
@@ -192,12 +192,22 @@ void Game::sLifeSpan()
     // if it has lifesapn and its time is up destroy it
 }
 
-void Game::sCollision()
+void Game::sCollision() 
 {
-    //TODO: implement all proper collisions between entities
-    // use collision radius not shape radius
-
-
+    for (auto b : m_entities.getEntities("bullet"))
+    {
+        for (auto e : m_entities.getEntities("enemy"))
+        {
+            auto enemy_stuff = Vec2(e->cTransform->pos.x, e->cTransform->pos.y);
+            auto bullet_stuff = Vec2(b->cTransform->pos.x, b->cTransform->pos.y);
+            float dist = bullet_stuff.dist(enemy_stuff);
+            if (dist < b->cCollision->radius + e->cCollision->radius)
+            {
+                b->destroy();
+                e->destroy();
+            }
+        }
+    }
 }
 
 void Game::sEnemySpawner()
